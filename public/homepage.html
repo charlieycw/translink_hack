@@ -16,10 +16,28 @@
   
   <script>
     var socket = io();
+    var globalBuses = {};
     
-    socket.on('buses', function(msg){
-        console.log(msg);
-    });
+    socket.on('buses', function(buses){
+        globalBuses = buses;
+        console.log(buses);
+        updateMarkers();
+          });
+          
+     function updateMarkers() {
+          markers.forEach(function(m){
+            var peopleOnBus =  globalBuses[m.vehicleNo];
+            if (peopleOnBus) {
+                if(peopleOnBus > 5) {
+                    m.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+                } else if (peopleOnBus > 3) {
+                    m.setIcon("http://maps.google.com/mapfiles/ms/icons/yellow-dot.png");
+                } else {
+                    m.setIcon("http://maps.google.com/mapfiles/ms/icons/green-dot.png");
+                }
+            }         
+        });
+     }
     </script>
 
   <style>
@@ -116,7 +134,8 @@
             lng: lng
           },
           map: map,
-          title: title
+          title: title,
+          icon: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
         });
       }
 
@@ -143,9 +162,11 @@
             bus.getElementsByTagName("RecordedTime")[index].childNodes[0].nodeValue,
             marker,
             bus.getElementsByTagName("VehicleNo")[index].childNodes[0].nodeValue);
+            marker.vehicleNo = bus.getElementsByTagName("VehicleNo")[index].childNodes[0].nodeValue;
           markers.push(marker);
 
         }
+        updateMarkers();
       }
 
 

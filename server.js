@@ -34,11 +34,10 @@ app.get('/', function(req, res){
   res.sendFile('public' + '/index.html');
 });
 
-// io.on('connection', function(socket){
-//   socket.on('chat message', function(msg){
-//     io.emit('chat message', msg);
-//   });
-// });
+//gets latest set of buses on connection
+io.on('connection', function(socket){
+  socket.emit('buses', buses);
+});
 
 var buses = {};
 app.post('/bus', function (req, res) {
