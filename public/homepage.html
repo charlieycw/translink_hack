@@ -47,6 +47,7 @@
         var userposLong = -123.11688300000003;
         var markerLat;
         var markerLong;
+        var markerBusId;
         function initMap() {
           map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: 49.233633, lng: -123.11688300000003},
@@ -131,21 +132,40 @@
             bus.getElementsByTagName("Direction")[index].childNodes[0].nodeValue,
             bus.getElementsByTagName("Destination")[index].childNodes[0].nodeValue,
             bus.getElementsByTagName("RecordedTime")[index].childNodes[0].nodeValue,
-            marker);
+            marker,
+            bus.getElementsByTagName("VehicleNo")[index].childNodes[0].nodeValue);
           markers.push(marker);
 
         }
       }
 
 
-      function toggleIfNotBusy(){
+      function toggleIfNotBusy(busId){
            if(seeIfWithinLocation()){
-              console.log("close enough to decrement DECREMENT IT!");
-          }
+            $.ajax({
+                type: "POST",
+                url: "/bus",
+                data: JSON.stringify({'id': busId, action: 'decrement'}),
+                success: function( data ) {
+                    $( ".result" ).html( data );
+                    }, 
+                contentType: 'application/json'
+              });
+           }
       }
 
-      function toggleIfBusy(){
+      function toggleIfBusy(busId){
           if(seeIfWithinLocation()){
+              $.ajax({
+                type: "POST",
+                url: "/bus",
+                data: JSON.stringify({'id': busId, action: 'increment'}),
+                success: function( data ) {
+                    $( ".result" ).html( data );
+                    }, 
+                contentType: 'application/json'
+              });
+              
               console.log("close enough to toggle TOGGLE IT!");
           }
       }
@@ -158,9 +178,9 @@
       
       var prevInfoWindow = false;
       
-      function createInfoWindow(RouteNo, Direction, Destination, RecordedTime, marker) {
+      function createInfoWindow(RouteNo, Direction, Destination, RecordedTime, marker, busNo) {
         var content = 
-        '<h1>' + RouteNo + '</h1>' + '<p>' + Destination+ '</p>' + '<p>' + Direction + '</p>' + '<button onClick="toggleIfBusy()">Busy</button><button onClick="toggleIfNotBusy()">Not Busy</button>';
+        '<h1>' + RouteNo + '</h1>' + '<p>' + Destination+ '</p>' + '<p>' + Direction + '</p>' + '<button onClick="toggleIfBusy('+ busNo +')">Busy</button>' +' <button onClick="toggleIfNotBusy('+ busNo +')">Not Busy</button>';
         var infoWindow = new google.maps.InfoWindow({
           content: content
         });
@@ -202,7 +222,7 @@
           deleteMarkers();
           userinputbus = document.getElementById("bus_input").value;
           $.ajax({
-            url: "http://bettertranslink.azurewebsites.net//rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=" + userinputbus, 
+            url: "/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=" + userinputbus, 
             type: "GET",      
             cache: false,
             success: function(data){

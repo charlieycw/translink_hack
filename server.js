@@ -1,15 +1,15 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var proxyMiddleware = require('http-proxy-middleware');
-var context = '/api';    
+var context = '/api';
 var app = express();
 
 //http://api.translink.ca/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=041
 var proxy = proxyMiddleware('/rttiapi', {
-        target: 'http://api.translink.ca', // target host 
-        changeOrigin: true,               // needed for virtual hosted sites 
-        ws: true
-    });
+    target: 'http://api.translink.ca', // target host 
+    changeOrigin: true,               // needed for virtual hosted sites 
+    ws: true
+});
 
 // middleware -> if in public server, it will serve it, and then hit next stuff
 app.use(express.static('public'));
@@ -25,13 +25,18 @@ app.use(bodyParser.json());
 // get on /
 
 app.listen(process.env.PORT || 3000, function () {
-  console.log('Example app listening on port 3000!');
+    console.log('Example app listening on port 3000!');
 });
 
 var buses = {};
 app.post('/bus', function (req, res) {
     var bus = req.body;
-    buses[bus.id] = (buses[bus.id] || 0) + 1;
+    if (bus.action === 'increment')
+        buses[bus.id] = (buses[bus.id] || 0) + 1;
+    else if( buses[bus.id] > 0 ){
+    
+        buses[bus.id]--;
+    }
     res.json(buses);
 });
 
