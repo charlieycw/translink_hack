@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <link href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel = "stylesheet">
+
+
+
+  <title>Translink</title>
+
+
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+  <style>
+  #map {
+    width: 500px;
+    height: 400px;
+  }
+  .jumbotron{
+    text-align: center;
+  }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="jumbotron">
+      <h1>Translink Bus<br> </h1>
+    </div>
+
+
+    <div id="map"></div>
+    <script>
+    function initMap() {
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: 49.282, lng: -123.1207},
+        zoom: 12
+      });
+      var infoWindow = new google.maps.InfoWindow({map: map});
+
+        // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+            infoWindow.setPosition(pos);
+            infoWindow.setContent('Hello world!');
+            map.setCenter(pos);
+          }, function() {
+            handleLocationError(true, infoWindow, map.getCenter());
+          });
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, infoWindow, map.getCenter());
+        }
+      }
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+          'Error: The Geolocation service failed.' :
+          'Error: Your browser doesn\'t support geolocation.');
+      }
+
+      function createMarker(lat, lng, title) {
+        return new google.maps.Marker({
+          position: {
+            lat: lat,
+            lng: lng
+          },
+          map: map,
+          title: title
+        });
+      }
+
+      function plotBuses(bus){
+        for(var index in bus){
+          var marker = createMarker(
+            Number(bus.Latitude),
+            Number(bus.Longitude),
+            bus.title);
+          createInfoWindow(
+            bus.RouteNo,
+            bus.Direction,
+            bus.Destination,
+            bus.RecordedTime,
+            marker);
+        }
+      }
+
+      function createInfoWindow(RouteNo, Direction, Destination, RecordedTime) {
+        var content = 
+        '<h1>' + RouteNo + '</h1>';
+        var infoWindow = new google.maps.InfoWindow({
+          content: content
+        });
+        marker.addListener('click', function() {
+          infoWindow.open(map, marker);
+        });
+      }
+
+      $(document).ready(function() {
+        $("button").click(function() {
+          alert("find click");
+          $.ajax({
+            url: "http://bettertranslink.azurewebsites.net/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=N10", 
+            type: "GET",      
+            cache: false,
+            success: function(data){
+              plotBuses(data);
+              console.log(data);
+              alert("success");
+            }        
+          });
+        })});
+      </script>
+
+      <button>Find</button>
+
+
+
+    </div>
+  </body>
+
+  </html>
+
+
+
+
+
+
+
+
+
