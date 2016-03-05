@@ -202,7 +202,7 @@
           deleteMarkers();
           userinputbus = document.getElementById("bus_input").value;
           $.ajax({
-            url: "http://localhost:3000/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=" + userinputbus, 
+            url: "http://bettertranslink.azurewebsites.net//rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=" + userinputbus, 
             type: "GET",      
             cache: false,
             success: function(data){
