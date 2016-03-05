@@ -1,8 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var proxyMiddleware = require('http-proxy-middleware');
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
 var context = '/api';    
 var app = express();
 
@@ -25,19 +23,6 @@ app.use(bodyParser.json());
 //middleware?
 // attach stuff to the app
 // get on /
-app.get('/', function (req, res) {
-  res.send('Hello World!');
-});
-
-
-
-io.on('connection', function(socket){
-  console.log('a user connected');
-  socket.on('disconnect', function(){
-    console.log('user disconnected');
-  });
-});
-
 
 app.listen(process.env.PORT || 3000, function () {
   console.log('Example app listening on port 3000!');
