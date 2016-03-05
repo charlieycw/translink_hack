@@ -36,8 +36,9 @@
 
     <div id="map"></div>
     <script>
+        var map;
     function initMap() {
-      var map = new google.maps.Map(document.getElementById('map'), {
+      map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 49.282, lng: -123.1207},
         zoom: 12
       });
@@ -71,6 +72,7 @@
       }
 
       function createMarker(lat, lng, title) {
+          console.log("trying to make marker, given info" + lat + " " + lng + " " + title);
         return new google.maps.Marker({
           position: {
             lat: lat,
@@ -82,21 +84,26 @@
       }
 
       function plotBuses(bus){
-        for(var index in bus){
+        console.log("in plot buses");
+        console.log(bus);
+        var buses = bus.getElementsByTagName("Bus");
+       console.log("buses" + buses);
+       console.log("what is this? " + bus.getElementsByTagName("Latitude")[0].childNodes[0].nodeValue);
+        for(var index in buses){
           var marker = createMarker(
-            Number(bus.Latitude),
-            Number(bus.Longitude),
-            bus.title);
+            Number(bus.getElementsByTagName("Latitude")[index].childNodes[0].nodeValue),
+            Number(bus.getElementsByTagName("Longitude")[index].childNodes[0].nodeValue),
+            bus.getElementsByTagName("RouteNo")[index].childNodes[0].nodeValue);
           createInfoWindow(
-            bus.RouteNo,
-            bus.Direction,
-            bus.Destination,
-            bus.RecordedTime,
+            bus.getElementsByTagName("RouteNo")[index].childNodes[0].nodeValue,
+            bus.getElementsByTagName("Direction")[index].childNodes[0].nodeValue,
+            bus.getElementsByTagName("Destination")[index].childNodes[0].nodeValue,
+            bus.getElementsByTagName("RecordedTime")[index].childNodes[0].nodeValue,
             marker);
         }
       }
 
-      function createInfoWindow(RouteNo, Direction, Destination, RecordedTime) {
+      function createInfoWindow(RouteNo, Direction, Destination, RecordedTime, marker) {
         var content = 
         '<h1>' + RouteNo + '</h1>';
         var infoWindow = new google.maps.InfoWindow({
@@ -106,12 +113,12 @@
           infoWindow.open(map, marker);
         });
       }
-
+///rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=041
       $(document).ready(function() {
         $("button").click(function() {
           alert("find click");
           $.ajax({
-            url: "http://bettertranslink.azurewebsites.net/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=N10", 
+            url: "http://bettertranslink.azurewebsites.net/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=041", 
             type: "GET",      
             cache: false,
             success: function(data){

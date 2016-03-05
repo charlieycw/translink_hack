@@ -7,7 +7,6 @@ var context = '/api';
 var app = express();
 
 //http://api.translink.ca/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=041
-//http://localhost:3000/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=041
 var proxy = proxyMiddleware('/rttiapi', {
         target: 'http://api.translink.ca', // target host 
         changeOrigin: true,               // needed for virtual hosted sites 
@@ -27,8 +26,7 @@ app.use(bodyParser.json());
 // attach stuff to the app
 // get on /
 app.get('/', function (req, res) {
-  //res.send('Hello World!');
-  res.sendfile('./public/index.html');
+  res.send('Hello World!');
 });
 
 
