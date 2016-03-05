@@ -26,6 +26,11 @@
   #map {
     width: 500px;
     height: 400px;
+    margin: 0 auto 0 auto;
+  }
+  #bus_input {
+    width: 100px;
+    margin: 0 auto 0 auto;
   }
   .jumbotron{
     text-align: center;
@@ -40,12 +45,9 @@
       <h1>Translink Bus<br> </h1>
       <div id="floating-panel">
         <div class="form-group">
-          <label for="bus_input">Bus Name: </label>
+          <label for="bus_input">Bus Number:</label>
           <input type="text" class="form-control" id="bus_input">
           <button type="submit" class="btn btn-primary">Find</button>
-        </div>
-        <div>
-            <input onclick="deleteMarkers();" type=button value="Delete Markers">
         </div>
 
         <div id="map"></div>
