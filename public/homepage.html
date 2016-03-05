@@ -108,7 +108,23 @@
       }
       
 
-      function createMarker(lat, lng, title) {
+      var iconBus;
+
+      function busDirection(busDirection) {
+        if (busDirection === "WEST") {
+          iconBus = 'http://earth.google.com/images/kml-icons/track-directional/track-12.png'
+        } else if (busDirection === "EAST") {
+          iconBus = 'http://earth.google.com/images/kml-icons/track-directional/track-4.png'
+      } else if (busDirection === "NORTH") {
+          iconBus = 'http://earth.google.com/images/kml-icons/track-directional/track-0.png'
+        }
+        else if (busDirection === "SOUTH") {
+          iconBus = 'http://earth.google.com/images/kml-icons/track-directional/track-8.png'
+        } return iconBus;
+      }
+
+
+      function createMarker(lat, lng, title, dir) {
         console.log("trying to make marker, given info" + lat + " " + lng + " " + title);
         return new google.maps.Marker({
           position: {
@@ -116,9 +132,11 @@
             lng: lng
           },
           map: map,
-          title: title
+          title: title,
+          icon: busDirection(dir)
         });
       }
+      var marker;
 
       function plotBuses(bus){
         console.log("in plot buses");
@@ -127,10 +145,10 @@
         console.log("buses" + buses);
         var index;
         for(index = 0; index < buses.length; index++){
-          var marker = createMarker(
+          marker = createMarker(
             Number(bus.getElementsByTagName("Latitude")[index].childNodes[0].nodeValue),
             Number(bus.getElementsByTagName("Longitude")[index].childNodes[0].nodeValue),
-            bus.getElementsByTagName("RouteNo")[index].childNodes[0].nodeValue);
+            bus.getElementsByTagName("RouteNo")[index].childNodes[0].nodeValue, bus.getElementsByTagName("Direction")[index].childNodes[0].nodeValue);
              google.maps.event.addListener(marker, "click", function (event) {
                    markerLat = event.latLng.lat();
                    markerLong = event.latLng.lng();
