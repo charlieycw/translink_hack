@@ -12,6 +12,15 @@
   <script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  
+  <script>
+    var socket = io();
+    
+    socket.on('buses', function(msg){
+        console.log(msg);
+    });
+    </script>
 
   <style>
   #map {

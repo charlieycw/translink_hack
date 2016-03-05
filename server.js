@@ -2,7 +2,10 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var proxyMiddleware = require('http-proxy-middleware');
 var context = '/api';
-var app = express();
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
 
 //http://api.translink.ca/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=041
 var proxy = proxyMiddleware('/rttiapi', {
@@ -23,10 +26,19 @@ app.use(bodyParser.json());
 //middleware?
 // attach stuff to the app
 // get on /
-
-app.listen(process.env.PORT || 3000, function () {
+http.listen(process.env.PORT || 3000, function () {
     console.log('Example app listening on port 3000!');
 });
+
+app.get('/', function(req, res){
+  res.sendFile('public' + '/index.html');
+});
+
+// io.on('connection', function(socket){
+//   socket.on('chat message', function(msg){
+//     io.emit('chat message', msg);
+//   });
+// });
 
 var buses = {};
 app.post('/bus', function (req, res) {
@@ -38,6 +50,7 @@ app.post('/bus', function (req, res) {
         buses[bus.id]--;
     }
     res.json(buses);
+    io.sockets.emit('buses', buses);
 });
 
 
