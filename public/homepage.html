@@ -52,7 +52,6 @@
             center: {lat: 49.233633, lng: -123.11688300000003},
             zoom: 14
           });
-          var infoWindow = new google.maps.InfoWindow({map: map});
 
         // Try HTML5 geolocation.
         if (navigator.geolocation) {
@@ -63,8 +62,7 @@
             };
             userposLat = pos.lat;
             userposLong = pos.lng;
-            infoWindow.setPosition(pos);
-            infoWindow.setContent('Hello world!');
+            createUserMarker();
             map.setCenter(pos);
           }, function() {
             handleLocationError(true, infoWindow, map.getCenter());
@@ -80,7 +78,25 @@
         infoWindow.setContent(browserHasGeolocation ?
           'Error: The Geolocation service failed.' :
           'Error: Your browser doesn\'t support geolocation.');
+          createUserMarker();
       }
+
+
+       function createUserMarker(){
+          var icon = {
+                url: 'https://bettertranslink.azurewebsites.net/userIcon.png',
+                scaledSize: new google.maps.Size(20, 45), // scaled size
+                origin: new google.maps.Point(0,0), // origin
+                anchor: new google.maps.Point(0, 0) // anchor
+            };
+            userMarker = new google.maps.Marker({
+                position: {lat: userposLat, lng: userposLong},
+                draggable: true,
+                map: map,
+                icon: icon
+            });
+      }
+      
 
       function createMarker(lat, lng, title) {
         console.log("trying to make marker, given info" + lat + " " + lng + " " + title);
@@ -105,6 +121,11 @@
             Number(bus.getElementsByTagName("Latitude")[index].childNodes[0].nodeValue),
             Number(bus.getElementsByTagName("Longitude")[index].childNodes[0].nodeValue),
             bus.getElementsByTagName("RouteNo")[index].childNodes[0].nodeValue);
+             google.maps.event.addListener(marker, "click", function (event) {
+                   markerLat = event.latLng.lat();
+                   markerLong = event.latLng.lng();
+                   console.log(markerLat + " " + markerLong);
+            });
           createInfoWindow(
             bus.getElementsByTagName("RouteNo")[index].childNodes[0].nodeValue,
             bus.getElementsByTagName("Direction")[index].childNodes[0].nodeValue,
@@ -117,6 +138,12 @@
       }
 
 
+      function toggleIfNotBusy(){
+           if(seeIfWithinLocation()){
+              console.log("close enough to decrement DECREMENT IT!");
+          }
+      }
+
       function toggleIfBusy(){
           if(seeIfWithinLocation()){
               console.log("close enough to toggle TOGGLE IT!");
@@ -124,14 +151,16 @@
       }
       
       function seeIfWithinLocation(){
-          return (Math.abs(userposLat - markerLat) < 0.002) && (Math.abs(userposLong - markerLong) < 0.002)
+          //console.log("userLat: " + userMarker.position.lat() + " userLng: " + userMarker.position.lng() );
+          //console.log("markerLat: " + markerLat + " markerLong: " + markerLong);
+          return (Math.abs(userMarker.position.lat() - markerLat) < 0.002) && (Math.abs(userMarker.position.lng() - markerLong) < 0.002)
       }
       
       var prevInfoWindow = false;
       
       function createInfoWindow(RouteNo, Direction, Destination, RecordedTime, marker) {
         var content = 
-        '<h1>' + RouteNo + '</h1>' + '<p>' + Destination+ '</p>' + '<p>' + Direction + '</p>' + '<button onClick="toggleIfBusy()">Busy</button>';
+        '<h1>' + RouteNo + '</h1>' + '<p>' + Destination+ '</p>' + '<p>' + Direction + '</p>' + '<button onClick="toggleIfBusy()">Busy</button><button onClick="toggleIfNotBusy()">Not Busy</button>';
         var infoWindow = new google.maps.InfoWindow({
           content: content
         });
@@ -173,7 +202,7 @@
           deleteMarkers();
           userinputbus = document.getElementById("bus_input").value;
           $.ajax({
-            url: "http://bettertranslink.azurewebsites.net/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=" + userinputbus, 
+            url: "http://localhost:3000/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=" + userinputbus, 
             type: "GET",      
             cache: false,
             success: function(data){
