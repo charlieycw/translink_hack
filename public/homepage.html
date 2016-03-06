@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+  <link href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel = "stylesheet">
 
-    <title>Translink</title>
+  <title>Translink</title>
 
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-
-    <script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  
+ <script>
         var socket = io();
     var globalBuses = {};
     
@@ -30,49 +29,48 @@
             var peopleOnBus =  globalBuses[m.vehicleNo];
             if (peopleOnBus) {
                 if(peopleOnBus > 5) {
-                    m.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+                    m.setIcon(busDirection(m.direction, 'red'))
                 } else if (peopleOnBus > 3) {
-                    m.setIcon("http://maps.google.com/mapfiles/ms/icons/yellow-dot.png");
+                    m.setIcon(busDirection(m.direction, 'yellow'));
                 } else {
-                    m.setIcon("http://maps.google.com/mapfiles/ms/icons/green-dot.png");
+                    m.setIcon(busDirection(m.direction, 'green'));
                 }
             }         
         });
      }
     </script>
 
-    <style>
-        #map {
-            width: 500px;
-            height: 400px;
-        }
-        
-        .jumbotron {
-            text-align: center;
-        }
-    </style>
+  <style>
+  #map {
+    width: 400px;
+    height: 400px;
+    margin: 0 auto 0 auto;
+  }
+  #bus_input {
+    width: 100px;
+    margin: 0 auto 0 auto;
+  }
+  .jumbotron{
+    text-align: center;
+  }
+  </style>
 
 </head>
-
 <body>
 
-    <div class="container">
-        <div class="jumbotron">
-            <h1>Translink Bus<br> </h1>
-            <div id="floating-panel">
-                <div class="form-group">
-                    <label for="bus_input">Bus Name: </label>
-                    <input type="text" class="form-control" id="bus_input">
-                    <button type="submit" class="btn btn-primary">Find</button>
-                </div>
-                <div>
-                    <input onclick="deleteMarkers();" type=button value="Delete Markers">
-                </div>
+  <div class="container">
+    <div class="jumbotron">
+      <h1>Translink Bus<br> </h1>
+        <div class="form-group">
+          <label for="bus_input">Bus Number:</label>
+          <input type="text" class="form-control" id="bus_input">
+          <button type="submit" class="btn btn-primary">Find</button>
+        </div>
 
-                <div id="map"></div>
+        <div id="map"></div>
 
-                <script>
-                    var map;
+        <script>
+        var map;
         var userposLat = 49.233633;
         var userposLong = -123.11688300000003;
         var markerLat;
@@ -129,7 +127,56 @@
       }
       
 
-      function createMarker(lat, lng, title) {
+      var iconBus;
+
+      function busDirection(busDirection, iconColour) {
+          if(!iconColour){
+            if (busDirection === "WEST") {
+            iconBus = 'https://bettertranslink.azurewebsites.net/GreenLeft.png'
+            } else if (busDirection === "EAST") {
+            iconBus = 'https://bettertranslink.azurewebsites.net/GreenRight.png'
+             } else if (busDirection === "NORTH") {
+            iconBus = 'https://bettertranslink.azurewebsites.net/GreenUp.png'
+            }
+            else if (busDirection === "SOUTH") {
+            iconBus = 'https://bettertranslink.azurewebsites.net/GreenDown.png'
+            } return iconBus;
+          } else {
+              if (busDirection === "WEST") {
+                  if(iconColour === 'green')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/GreenLeft.png'
+                  if(iconColour === 'yellow')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/YellowLeft.png'
+                  if(iconColour === 'red')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/RedLeft.png'
+            } else if (busDirection === "EAST") {
+                  if(iconColour === 'green')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/GreenRight.png'
+                  if(iconColour === 'yellow')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/YellowRight.png'
+                  if(iconColour === 'red')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/RedRight.png'
+             } else if (busDirection === "NORTH") {
+                   if(iconColour === 'green')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/GreenUp.png'
+                  if(iconColour === 'yellow')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/YellowUp.png'
+                  if(iconColour === 'red')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/RedUp.png'
+            }
+            else if (busDirection === "SOUTH") {
+                 if(iconColour === 'green')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/GreenDown.png'
+                  if(iconColour === 'yellow')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/YellowDown.png'
+                  if(iconColour === 'red')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/RedDown.png'
+            } return iconBus;
+          }
+      }
+
+
+      function createMarker(lat, lng, title, dir) {
         console.log("trying to make marker, given info" + lat + " " + lng + " " + title);
         return new google.maps.Marker({
           position: {
@@ -138,9 +185,10 @@
           },
           map: map,
           title: title,
-          icon: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+          icon: busDirection(dir)
         });
       }
+      var marker;
 
       function plotBuses(bus){
         console.log("in plot buses");
@@ -149,10 +197,10 @@
         console.log("buses" + buses);
         var index;
         for(index = 0; index < buses.length; index++){
-          var marker = createMarker(
+          marker = createMarker(
             Number(bus.getElementsByTagName("Latitude")[index].childNodes[0].nodeValue),
             Number(bus.getElementsByTagName("Longitude")[index].childNodes[0].nodeValue),
-            bus.getElementsByTagName("RouteNo")[index].childNodes[0].nodeValue);
+            bus.getElementsByTagName("RouteNo")[index].childNodes[0].nodeValue, bus.getElementsByTagName("Direction")[index].childNodes[0].nodeValue);
              google.maps.event.addListener(marker, "click", function (event) {
                    markerLat = event.latLng.lat();
                    markerLong = event.latLng.lng();
@@ -165,11 +213,12 @@
             bus.getElementsByTagName("RecordedTime")[index].childNodes[0].nodeValue,
             marker,
             bus.getElementsByTagName("VehicleNo")[index].childNodes[0].nodeValue);
-            marker.vehicleNo = bus.getElementsByTagName("VehicleNo")[index].childNodes[0].nodeValue;
+			marker.vehicleNo = bus.getElementsByTagName("VehicleNo")[index].childNodes[0].nodeValue;
+            marker.direction =  bus.getElementsByTagName("Direction")[index].childNodes[0].nodeValue;
           markers.push(marker);
 
         }
-        updateMarkers();
+		updateMarkers();
       }
 
 
@@ -230,7 +279,7 @@
       var userinputbus;
       // list of buses
       var markers = [];
-      var busNumber = "";
+	  var busNumber = "";
 
       // Adds a marker to the map and push to the array.
       function addMarker(location) {
@@ -274,11 +323,19 @@
           });
             }
           }
-                </script>
-            </div>
-        </div>
-    </div>
+      </script>
+  </div>
+</div>
 
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
