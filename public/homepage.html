@@ -14,12 +14,30 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   
-  <script>
-    var socket = io();
+ <script>
+        var socket = io();
+    var globalBuses = {};
     
-    socket.on('buses', function(msg){
-        console.log(msg);
-    });
+    socket.on('buses', function(buses){
+        globalBuses = buses;
+        console.log(buses);
+        updateMarkers();
+          });
+          
+     function updateMarkers() {
+          markers.forEach(function(m){
+            var peopleOnBus =  globalBuses[m.vehicleNo];
+            if (peopleOnBus) {
+                if(peopleOnBus > 5) {
+                    m.setIcon(busDirection(m.direction, 'red'))
+                } else if (peopleOnBus > 3) {
+                    m.setIcon(busDirection(m.direction, 'yellow'));
+                } else {
+                    m.setIcon(busDirection(m.direction, 'green'));
+                }
+            }         
+        });
+     }
     </script>
 
   <style>
@@ -52,7 +70,7 @@
         <div id="map"></div>
 
         <script>
-        var map;
+        var map; 
         var userposLat = 49.233633;
         var userposLong = -123.11688300000003;
         var markerLat;
@@ -111,17 +129,50 @@
 
       var iconBus;
 
-      function busDirection(busDirection) {
-        if (busDirection === "WEST") {
-          iconBus = 'http://earth.google.com/images/kml-icons/track-directional/track-12.png'
-        } else if (busDirection === "EAST") {
-          iconBus = 'http://earth.google.com/images/kml-icons/track-directional/track-4.png'
-      } else if (busDirection === "NORTH") {
-          iconBus = 'http://earth.google.com/images/kml-icons/track-directional/track-0.png'
-        }
-        else if (busDirection === "SOUTH") {
-          iconBus = 'http://earth.google.com/images/kml-icons/track-directional/track-8.png'
-        } return iconBus;
+      function busDirection(busDirection, iconColour) {
+          if(!iconColour){
+            if (busDirection === "WEST") {
+            iconBus = 'https://bettertranslink.azurewebsites.net/GreenLeft.png'
+            } else if (busDirection === "EAST") {
+            iconBus = 'https://bettertranslink.azurewebsites.net/GreenRight.png'
+             } else if (busDirection === "NORTH") {
+            iconBus = 'https://bettertranslink.azurewebsites.net/GreenUp.png'
+            }
+            else if (busDirection === "SOUTH") {
+            iconBus = 'https://bettertranslink.azurewebsites.net/GreenDown.png'
+            } return iconBus;
+          } else {
+              if (busDirection === "WEST") {
+                  if(iconColour === 'green')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/GreenLeft.png'
+                  if(iconColour === 'yellow')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/YellowLeft.png'
+                  if(iconColour === 'red')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/RedLeft.png'
+            } else if (busDirection === "EAST") {
+                  if(iconColour === 'green')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/GreenRight.png'
+                  if(iconColour === 'yellow')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/YellowRight.png'
+                  if(iconColour === 'red')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/RedRight.png'
+             } else if (busDirection === "NORTH") {
+                   if(iconColour === 'green')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/GreenUp.png'
+                  if(iconColour === 'yellow')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/YellowUp.png'
+                  if(iconColour === 'red')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/RedUp.png'
+            }
+            else if (busDirection === "SOUTH") {
+                 if(iconColour === 'green')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/GreenDown.png'
+                  if(iconColour === 'yellow')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/YellowDown.png'
+                  if(iconColour === 'red')
+                     iconBus = 'https://bettertranslink.azurewebsites.net/RedDown.png'
+            } return iconBus;
+          }
       }
 
 
@@ -162,9 +213,12 @@
             bus.getElementsByTagName("RecordedTime")[index].childNodes[0].nodeValue,
             marker,
             bus.getElementsByTagName("VehicleNo")[index].childNodes[0].nodeValue);
+			marker.vehicleNo = bus.getElementsByTagName("VehicleNo")[index].childNodes[0].nodeValue;
+            marker.direction =  bus.getElementsByTagName("Direction")[index].childNodes[0].nodeValue;
           markers.push(marker);
 
         }
+		updateMarkers();
       }
 
 
@@ -225,6 +279,7 @@
       var userinputbus;
       // list of buses
       var markers = [];
+	  var busNumber = "";
 
       // Adds a marker to the map and push to the array.
       function addMarker(location) {
@@ -247,18 +302,27 @@
 
       $(document).ready(function() {
         $("button").click(function() {
-          deleteMarkers();
-          userinputbus = document.getElementById("bus_input").value;
-          $.ajax({
-            url: "/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=" + userinputbus, 
+           busNumber = document.getElementById("bus_input").value;
+           getBuses();
+        })});
+        
+        setInterval(getBuses, 15000);
+        
+        function getBuses() {
+            if (busNumber) {
+                console.log("blah");
+                  $.ajax({
+            url: "/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=" + busNumber, 
             type: "GET",      
             cache: false,
             success: function(data){
+              deleteMarkers();
               plotBuses(data);
               console.log(data);
             }
           });
-        })});
+            }
+          }
       </script>
   </div>
 </div>
