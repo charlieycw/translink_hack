@@ -20,7 +20,7 @@
     
     socket.on('buses', function(buses){
         globalBuses = buses;
-        console.log(buses);
+        //console.log(buses);
         updateMarkers();
           });
           
@@ -177,7 +177,7 @@
 
 
       function createMarker(lat, lng, title, dir) {
-        console.log("trying to make marker, given info" + lat + " " + lng + " " + title);
+        //console.log("trying to make marker, given info" + lat + " " + lng + " " + title);
         return new google.maps.Marker({
           position: {
             lat: lat,
@@ -191,10 +191,10 @@
       var marker;
 
       function plotBuses(bus){
-        console.log("in plot buses");
-        console.log(bus);
+        //console.log("in plot buses");
+        //console.log(bus);
         var buses = bus.getElementsByTagName("Bus");
-        console.log("buses" + buses);
+        //console.log("buses" + buses);
         var index;
         for(index = 0; index < buses.length; index++){
           marker = createMarker(
@@ -204,7 +204,7 @@
              google.maps.event.addListener(marker, "click", function (event) {
                    markerLat = event.latLng.lat();
                    markerLong = event.latLng.lng();
-                   console.log(markerLat + " " + markerLong);
+                   //console.log(markerLat + " " + markerLong);
             });
           createInfoWindow(
             bus.getElementsByTagName("RouteNo")[index].childNodes[0].nodeValue,
@@ -248,7 +248,7 @@
                 contentType: 'application/json'
               });
               
-              console.log("close enough to toggle TOGGLE IT!");
+              //console.log("close enough to toggle TOGGLE IT!");
           }
       }
       
@@ -310,15 +310,15 @@
         
         function getBuses() {
             if (busNumber) {
-                console.log("blah");
+                //console.log("blah");
                   $.ajax({
-            url: "/rttiapi/v1/buses?apikey=9f8qVp2UQtqU4RuU6kgV&routeNo=" + busNumber, 
+            url: "/rttiapi/v1/buses?apikey=3zRM8cDr6YzeVM61S4uE&routeNo=" + busNumber, 
             type: "GET",      
             cache: false,
             success: function(data){
               deleteMarkers();
               plotBuses(data);
-              console.log(data);
+              //console.log(data);
             }
           });
             }
